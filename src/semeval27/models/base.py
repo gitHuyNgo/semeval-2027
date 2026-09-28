@@ -16,6 +16,7 @@ class GenerationResult:
     error: str | None
     latency_seconds: float
     effective_generation_config: dict[str, Any]
+    provider_response_metadata: dict[str, Any] | None = None
 
 
 class ModelRunner(abc.ABC):

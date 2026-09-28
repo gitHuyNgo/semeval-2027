@@ -99,6 +99,11 @@ python -c "import json; r=json.load(open('artifacts/scores/benchmark/B05.json', 
 python -m semeval27.evaluation.summarize benchmark --artifact-root artifacts --paths-config configs/paths.example.yaml
 ```
 
+Gemini uses the provider-specific `gemini.max_output_tokens` setting because
+Gemini's limit includes both internal thinking and visible answer tokens. Its
+saved prediction rows include finish reason and token-usage metadata so empty
+visible responses can be audited without rerunning inference.
+
 When organizer code becomes available, sync it verbatim, run the optional
 wrapper against the same prediction files, and compare the saved score reports:
 

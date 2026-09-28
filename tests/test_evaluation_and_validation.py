@@ -7,6 +7,7 @@ import pytest
 from semeval27.evaluation.provisional_bertscore import _prediction_and_reference, provisional_config
 from semeval27.evaluation.sync_official_scorer import sync_files
 from semeval27.experiments.benchmark import validate_prediction_coverage
+from semeval27.models.gemini_runner import _response_metadata
 from semeval27.utils.io import sha256_file
 
 
@@ -56,3 +57,32 @@ def test_provisional_configuration_is_explicit() -> None:
 def test_evaluator_preserves_raw_answer_text() -> None:
     row = {"sample_id": "x", "raw_model_output": "  The Answer!\n", "reference_answer": "The answer."}
     assert _prediction_and_reference(row) == ("  The Answer!\n", "The answer.")
+
+
+def test_gemini_response_metadata_preserves_finish_reason_and_token_usage() -> None:
+    class Value:
+        value = "MAX_TOKENS"
+
+    class Candidate:
+        finish_reason = Value()
+        finish_message = "token limit"
+
+    class Usage:
+        prompt_token_count = 10
+        candidates_token_count = 0
+        thoughts_token_count = 1024
+        total_token_count = 1034
+        cached_content_token_count = None
+
+    class Feedback:
+        block_reason = None
+
+    class Response:
+        candidates = [Candidate()]
+        usage_metadata = Usage()
+        prompt_feedback = Feedback()
+
+    metadata = _response_metadata(Response())
+    assert metadata["finish_reason"] == "MAX_TOKENS"
+    assert metadata["finish_message"] == "token limit"
+    assert metadata["usage"]["thoughts_token_count"] == 1024

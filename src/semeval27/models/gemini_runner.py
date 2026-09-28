@@ -9,6 +9,35 @@ from semeval27.models.base import GenerationResult, ModelRunner, bounded_retry
 from semeval27.prompting.renderer import RenderedRequest
 
 
+def _enum_value(value: Any) -> str | None:
+    if value is None:
+        return None
+    return str(getattr(value, "value", value))
+
+
+def _response_metadata(response: Any) -> dict[str, Any]:
+    candidates = list(getattr(response, "candidates", None) or [])
+    candidate = candidates[0] if candidates else None
+    usage = getattr(response, "usage_metadata", None)
+    prompt_feedback = getattr(response, "prompt_feedback", None)
+    return {
+        "candidate_count": len(candidates),
+        "finish_reason": _enum_value(getattr(candidate, "finish_reason", None)),
+        "finish_message": getattr(candidate, "finish_message", None),
+        "prompt_block_reason": _enum_value(getattr(prompt_feedback, "block_reason", None)),
+        "usage": {
+            field: getattr(usage, field, None)
+            for field in (
+                "prompt_token_count",
+                "candidates_token_count",
+                "thoughts_token_count",
+                "total_token_count",
+                "cached_content_token_count",
+            )
+        },
+    }
+
+
 class GeminiRunner(ModelRunner):
     def __init__(self, model_id: str, revision: str | None, generation: dict[str, Any], provider_config: dict[str, Any], layout: DatasetLayout) -> None:
         super().__init__(model_id, revision, generation)
@@ -43,7 +72,9 @@ class GeminiRunner(ModelRunner):
         started = time.perf_counter()
         effective = {
             "temperature": "provider_default; sampling parameters omitted for Gemini 3.8",
-            "max_output_tokens": int(self.generation["max_output_tokens"]),
+            "max_output_tokens": int(
+                self.provider_config.get("max_output_tokens", self.generation["max_output_tokens"])
+            ),
             "thinking_level": str(self.provider_config["thinking_level"]),
             "tools": None,
         }
@@ -62,7 +93,21 @@ class GeminiRunner(ModelRunner):
             )
             model_version = getattr(response, "model_version", None)
             self.resolved_revision = model_version or self.model_id
-            return GenerationResult(response.text or "", "success", None, time.perf_counter() - started, effective)
+            output = response.text or ""
+            metadata = _response_metadata(response)
+            if not output:
+                print(
+                    f"WARNING {request.sample_id}: Gemini returned no visible text "
+                    f"(finish_reason={metadata['finish_reason']}, usage={metadata['usage']})"
+                )
+            return GenerationResult(
+                output,
+                "success",
+                None,
+                time.perf_counter() - started,
+                effective,
+                metadata,
+            )
         except Exception as exc:
             return GenerationResult("", "error", f"{type(exc).__name__}: {exc}", time.perf_counter() - started, effective)
 

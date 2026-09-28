@@ -60,6 +60,7 @@ def run_requests(
             "error": result.error,
             "latency_seconds": result.latency_seconds,
             "generation_configuration": result.effective_generation_config,
+            "provider_response_metadata": result.provider_response_metadata,
             "timestamp": utc_now(),
             "run_id": run_id,
         }
