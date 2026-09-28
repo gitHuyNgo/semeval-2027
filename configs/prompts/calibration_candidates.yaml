@@ -1,0 +1,27 @@
+version: 1
+prompts:
+  P1: |-
+    Answer the question about the image.
+
+    Question: {question}
+    Answer:
+  P2: |-
+    Answer the question about the image directly.
+    Return only the answer, without additional commentary.
+
+    Question: {question}
+    Answer:
+  P3: |-
+    Use the image and relevant cultural knowledge when needed to answer the question.
+    Return only the answer and do not explain your reasoning.
+
+    Question: {question}
+    Answer:
+  P4: |-
+    Answer the question about the image as specifically and completely as needed.
+    Use relevant cultural knowledge when necessary.
+    Give the answer itself without discussing your reasoning process.
+
+    Question: {question}
+    Answer:
+

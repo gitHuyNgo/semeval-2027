@@ -1,0 +1,7 @@
+version: 1
+regime: fixed_9shot
+shots: 9
+selection: one_train_example_per_sorted_category
+seed: 42
+instruction_source: frozen_prompt
+

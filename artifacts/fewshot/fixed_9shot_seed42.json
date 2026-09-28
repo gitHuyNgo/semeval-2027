@@ -1,0 +1,109 @@
+{
+  "category_order": [
+    "Culture, Arts & Entertainment",
+    "Food & Cooking",
+    "Geography, Buildings & Landmarks",
+    "History, Geography & National Identity",
+    "Objects, Materials & Clothing",
+    "People, Society & Education",
+    "Religion & Spirituality",
+    "Sports & Recreation",
+    "Vehicles & Transportation"
+  ],
+  "created_at": "2026-09-28T13:14:45.380564+00:00",
+  "creation_config": {
+    "excluded_calibration_manifest": "D:\\Documents\\A_Research\\SemEval\\semeval-2027\\artifacts\\manifests\\prompt_calibration_seed42.jsonl",
+    "shots": 9,
+    "strategy": "one_per_sorted_category"
+  },
+  "demonstrations": [
+    {
+      "answer": "The individuals are wearing traditional Middle Eastern attire, including robes and patterned caps, which signify cultural heritage and regional identity.",
+      "category": "Culture, Arts & Entertainment",
+      "image": "images/a979fa50c5da4eb4eb7def7e4f9bd03c9e99e9bf744c3588c518b6e15f9742f0.jpg",
+      "order": 1,
+      "question": "What type of clothing are the individuals wearing, and what does it signify about their culture?",
+      "sample_id": "a979fa50c5da4eb4eb7def7e4f9bd03c9e99e9bf744c3588c518b6e15f9742f0"
+    },
+    {
+      "answer": "Sugarcane juice is being sold at the storefront.",
+      "category": "Food & Cooking",
+      "image": "images/1fc58e879882d57b8308b76edd0bd84e5bfd79b48eb3d6cd142deb8128c0a945.jpg",
+      "order": 2,
+      "question": "What beverage is being sold at the storefront in the image?",
+      "sample_id": "1fc58e879882d57b8308b76edd0bd84e5bfd79b48eb3d6cd142deb8128c0a945"
+    },
+    {
+      "answer": "The building features a large central dome flanked by smaller domes, crescent moon finials atop the domes, arched windows, and decorative geometric patterns, all of which are characteristic elements of Islamic architecture.",
+      "category": "Geography, Buildings & Landmarks",
+      "image": "images/091cb4a2f7f293dc09a17fa3939547d9b656cf40bdbdad4e978405922df29571.jpg",
+      "order": 3,
+      "question": "What architectural features in the image suggest that this building has Islamic cultural significance?",
+      "sample_id": "091cb4a2f7f293dc09a17fa3939547d9b656cf40bdbdad4e978405922df29571"
+    },
+    {
+      "answer": "The Mesopotamian civilization, particularly the Babylonians, is most commonly associated with structures like this.",
+      "category": "History, Geography & National Identity",
+      "image": "images/cab7dd5da6cb44342234a0b6c655f8a195baf29627ea381c27f6e0d9b08a50df.jpg",
+      "order": 4,
+      "question": "What ancient civilization is most commonly associated with structures like the one depicted in the image?",
+      "sample_id": "cab7dd5da6cb44342234a0b6c655f8a195baf29627ea381c27f6e0d9b08a50df"
+    },
+    {
+      "answer": "The gown features intricate beige embroidery, ornate embellishments, a matching cape, and a gold belt. It is accessorized with a small golden handbag that has a decorative chain.",
+      "category": "Objects, Materials & Clothing",
+      "image": "images/765d43436b2a38a125d0eb299e5c4395c7ec218b0b28c57dfd4ce20dbeb673ce.jpg",
+      "order": 5,
+      "question": "What are the key features of the gown worn by the model in the image?",
+      "sample_id": "765d43436b2a38a125d0eb299e5c4395c7ec218b0b28c57dfd4ce20dbeb673ce"
+    },
+    {
+      "answer": "The image shows a graduation ceremony at Birzeit University.",
+      "category": "People, Society & Education",
+      "image": "images/4e42f0a120a29c4cb53bf12b808d92034229220417ca1f93892727ce0e22a483.jpg",
+      "order": 6,
+      "question": "What event is depicted in the image, and where is it taking place?",
+      "sample_id": "4e42f0a120a29c4cb53bf12b808d92034229220417ca1f93892727ce0e22a483"
+    },
+    {
+      "answer": "The mosque's minaret features intricate Islamic geometric patterns, a pointed green roof, and a golden finial with crescent moon symbols, characteristic of Islamic architecture.",
+      "category": "Religion & Spirituality",
+      "image": "images/56c1d7614a98564a94c7c8fffef91695abe771bdd7c989818a788d440091ccea.jpg",
+      "order": 7,
+      "question": "What architectural features can be observed on the mosque's minaret in the image?",
+      "sample_id": "56c1d7614a98564a94c7c8fffef91695abe771bdd7c989818a788d440091ccea"
+    },
+    {
+      "answer": "The colorful smoke trails represent the colors of the Kuwaiti flag (red, green, and white), symbolizing national pride during an airshow or celebration.",
+      "category": "Sports & Recreation",
+      "image": "images/283dd91b74d86bb0bf5bb6122cf2d979bcbb4ad272543477e5ab558a0651ea49.jpg",
+      "order": 8,
+      "question": "What is the significance of the colorful smoke trails left by the planes in this image?",
+      "sample_id": "283dd91b74d86bb0bf5bb6122cf2d979bcbb4ad272543477e5ab558a0651ea49"
+    },
+    {
+      "answer": "The boat is a traditional wooden vessel named 'Dolphin Khasab Tours,' and people are onboard as well as swimming nearby in the clear blue water.",
+      "category": "Vehicles & Transportation",
+      "image": "images/cc73d2bcca2df3e134aed33f7028083058f9e5bb372eb24f1722ff508f6e0341.jpg",
+      "order": 9,
+      "question": "What type of boat is featured in the image, and what activity is taking place around it?",
+      "sample_id": "cc73d2bcca2df3e134aed33f7028083058f9e5bb372eb24f1722ff508f6e0341"
+    }
+  ],
+  "manifest_sha256": "c8f93e17a3c00e79cf4026cd11a89ac1c64f04b982c1a8ce551f1c4c82c4b4ce",
+  "manifest_type": "fixed_9shot",
+  "seed": 42,
+  "selected_ids": [
+    "a979fa50c5da4eb4eb7def7e4f9bd03c9e99e9bf744c3588c518b6e15f9742f0",
+    "1fc58e879882d57b8308b76edd0bd84e5bfd79b48eb3d6cd142deb8128c0a945",
+    "091cb4a2f7f293dc09a17fa3939547d9b656cf40bdbdad4e978405922df29571",
+    "cab7dd5da6cb44342234a0b6c655f8a195baf29627ea381c27f6e0d9b08a50df",
+    "765d43436b2a38a125d0eb299e5c4395c7ec218b0b28c57dfd4ce20dbeb673ce",
+    "4e42f0a120a29c4cb53bf12b808d92034229220417ca1f93892727ce0e22a483",
+    "56c1d7614a98564a94c7c8fffef91695abe771bdd7c989818a788d440091ccea",
+    "283dd91b74d86bb0bf5bb6122cf2d979bcbb4ad272543477e5ab558a0651ea49",
+    "cc73d2bcca2df3e134aed33f7028083058f9e5bb372eb24f1722ff508f6e0341"
+  ],
+  "source_dataset_revision": "364fba1c7b68672d3962a394297df27d6f45e787",
+  "source_split": "train"
+}

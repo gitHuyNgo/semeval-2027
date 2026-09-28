@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "semeval27"
+version = "0.1.0"
+description = "Reproducible MMCultureQA SemEval 2027 experiments"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "bert-score==0.3.13",
+  "PyYAML==6.0.2",
+]
+
+[project.optional-dependencies]
+local = [
+  "accelerate>=1.2,<2",
+  "Pillow>=10,<13",
+  "qwen-vl-utils>=0.0.14",
+  "transformers>=4.57,<6",
+]
+openai = ["openai>=2,<3"]
+gemini = ["google-genai>=1,<2", "Pillow>=10,<13"]
+test = ["pytest>=8,<10"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+

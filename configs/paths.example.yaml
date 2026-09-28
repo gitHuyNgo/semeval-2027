@@ -1,0 +1,4 @@
+# Paths are resolved relative to this repository, not the current shell.
+dataset_root: ../MMCQA-SemEval27
+artifact_root: ./artifacts
+

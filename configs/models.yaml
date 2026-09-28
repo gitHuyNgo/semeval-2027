@@ -1,0 +1,37 @@
+models:
+  openai_gpt:
+    provider: openai
+    model_id: gpt-5.6-sol
+    revision: null
+  gemini_flash:
+    provider: gemini
+    model_id: gemini-3.8-flash
+    revision: null
+  qwen4b:
+    provider: hf
+    model_id: Qwen/Qwen3-VL-4B-Instruct
+    revision: null
+    dtype: bfloat16
+  qwen8b:
+    provider: hf
+    model_id: Qwen/Qwen3-VL-8B-Instruct
+    revision: null
+    dtype: bfloat16
+  gemma4b:
+    provider: hf
+    model_id: google/gemma-3-4b-it
+    revision: null
+    dtype: bfloat16
+
+systems:
+  B01: {model: openai_gpt, regime: zero_shot}
+  B02: {model: openai_gpt, regime: fixed_9shot}
+  B03: {model: gemini_flash, regime: zero_shot}
+  B04: {model: gemini_flash, regime: fixed_9shot}
+  B05: {model: qwen4b, regime: zero_shot}
+  B06: {model: qwen4b, regime: fixed_9shot}
+  B07: {model: qwen8b, regime: zero_shot}
+  B08: {model: qwen8b, regime: fixed_9shot}
+  B09: {model: gemma4b, regime: zero_shot}
+  B10: {model: gemma4b, regime: fixed_9shot}
+

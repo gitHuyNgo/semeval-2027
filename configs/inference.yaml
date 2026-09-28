@@ -1,0 +1,22 @@
+generation:
+  temperature: 0
+  do_sample: false
+  max_output_tokens: 128
+  batch_size: 1
+  tools: disabled
+  external_retrieval: disabled
+openai:
+  reasoning_effort: minimal
+  max_retries: 5
+  initial_backoff_seconds: 1.0
+  max_backoff_seconds: 30.0
+gemini:
+  thinking_budget: 0
+  max_retries: 5
+  initial_backoff_seconds: 1.0
+  max_backoff_seconds: 30.0
+local:
+  dtype: bfloat16
+  device_map: auto
+  quantization: none
+
