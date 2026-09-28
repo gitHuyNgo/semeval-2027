@@ -28,6 +28,22 @@ python -m pip install -e ".[openai]"      # OpenAI runner
 python -m pip install -e ".[gemini]"      # Gemini runner
 ```
 
+The evaluator requires the pinned `bert-score==0.3.13` and
+`transformers==4.57.5` combination. Transformers 5.x is intentionally
+excluded because it is incompatible with BERTScore 0.3.13's handling of empty
+candidate strings. Do not independently upgrade `transformers` or
+`huggingface-hub` in this environment. After installation, verify the complete
+environment with:
+
+```powershell
+python -m pip check
+python -m semeval27.utils.check_environment
+```
+
+The upstream 0.3.13 BERTScore package may expose
+`bert_score.__version__ == "0.3.12"`. This project checks the installed
+distribution metadata, which must report 0.3.13.
+
 Set credentials from `.env.example` in the shell. `HF_TOKEN` is optional for
 public models unless Hugging Face access terms require it.
 
@@ -75,6 +91,9 @@ python -m semeval27.experiments.benchmark --system-id B05 --paths-config configs
 
 # 13. Score a complete system provisionally.
 python -m semeval27.evaluation.provisional_bertscore --predictions artifacts/predictions/benchmark/B05.jsonl --output artifacts/scores/benchmark/B05.json
+
+# Inspect the aggregate and per-example provisional F1 values.
+python -c "import json; r=json.load(open('artifacts/scores/benchmark/B05.json', encoding='utf-8')); print(r['macro_f1']); print(r['per_example'][:3])"
 
 # 14. Validate completeness and make provisional CSV/Markdown tables.
 python -m semeval27.evaluation.summarize benchmark --artifact-root artifacts --paths-config configs/paths.example.yaml

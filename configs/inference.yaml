@@ -6,12 +6,13 @@ generation:
   tools: disabled
   external_retrieval: disabled
 openai:
-  reasoning_effort: minimal
+  reasoning_effort: none
   max_retries: 5
   initial_backoff_seconds: 1.0
   max_backoff_seconds: 30.0
 gemini:
-  thinking_budget: 0
+  thinking_level: low
+  max_output_tokens: 1024
   max_retries: 5
   initial_backoff_seconds: 1.0
   max_backoff_seconds: 30.0

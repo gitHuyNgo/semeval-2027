@@ -42,15 +42,16 @@ class GeminiRunner(ModelRunner):
 
         started = time.perf_counter()
         effective = {
-            "temperature": 0,
+            "temperature": "provider_default; sampling parameters omitted for Gemini 3.8",
             "max_output_tokens": int(self.generation["max_output_tokens"]),
-            "thinking_budget": int(self.provider_config["thinking_budget"]),
+            "thinking_level": str(self.provider_config["thinking_level"]),
             "tools": None,
         }
         config = types.GenerateContentConfig(
-            temperature=0,
             max_output_tokens=effective["max_output_tokens"],
-            thinking_config=types.ThinkingConfig(thinking_budget=effective["thinking_budget"]),
+            thinking_config=types.ThinkingConfig(
+                thinking_level=effective["thinking_level"]
+            ),
         )
         try:
             response = bounded_retry(
