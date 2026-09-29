@@ -1,0 +1,11 @@
+model=Qwen/Qwen3-VL-8B-Instruct split_size=1000 regime=fixed_9shot already_completed=5 requests_required=995
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+Loading checkpoint shards:   0%|          | 0/4 [00:00<?, ?it/s]
+Loading checkpoint shards:  25%|██▌       | 1/4 [00:00<00:02,  1.40it/s]
+Loading checkpoint shards:  50%|█████     | 2/4 [00:01<00:01,  1.40it/s]
+Loading checkpoint shards:  75%|███████▌  | 3/4 [00:02<00:00,  1.38it/s]
+Loading checkpoint shards: 100%|██████████| 4/4 [00:02<00:00,  1.62it/s]
+Loading checkpoint shards: 100%|██████████| 4/4 [00:02<00:00,  1.53it/s]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+B08: wrote 995 successful predictions; 0 errors (not marked complete)
