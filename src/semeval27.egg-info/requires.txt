@@ -1,5 +1,8 @@
 bert-score==0.3.13
+huggingface-hub<1,>=0.34
+packaging>=20.9
 PyYAML==6.0.2
+transformers==4.57.5
 
 [gemini]
 google-genai<2,>=1
@@ -9,7 +12,6 @@ Pillow<13,>=10
 accelerate<2,>=1.2
 Pillow<13,>=10
 qwen-vl-utils>=0.0.14
-transformers<6,>=4.57
 
 [openai]
 openai<3,>=2

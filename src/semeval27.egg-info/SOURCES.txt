@@ -32,6 +32,7 @@ src/semeval27/prompting/freeze.py
 src/semeval27/prompting/renderer.py
 src/semeval27/prompting/validation.py
 src/semeval27/utils/__init__.py
+src/semeval27/utils/check_environment.py
 src/semeval27/utils/io.py
 src/semeval27/utils/logging.py
 src/semeval27/utils/reproducibility.py
