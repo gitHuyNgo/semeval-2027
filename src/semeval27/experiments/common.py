@@ -23,6 +23,35 @@ def successful_ids(path: Path) -> set[str]:
     }
 
 
+def validate_resume_compatibility(
+    path: Path,
+    *,
+    model_id: str,
+    model_revision: str | None,
+    prompt_hash: str,
+    regime: str,
+    demo_ids: list[str],
+) -> None:
+    """Refuse to mix predictions produced by different benchmark definitions."""
+    if not path.is_file():
+        return
+    rows = read_jsonl(path)
+    incompatible = [
+        row.get("sample_id")
+        for row in rows
+        if row.get("model_id") != model_id
+        or (model_revision is not None and row.get("model_revision") != model_revision)
+        or row.get("semantic_prompt_hash") != prompt_hash
+        or row.get("regime") != regime
+        or row.get("demo_ids", []) != demo_ids
+    ]
+    if incompatible:
+        raise ValueError(
+            f"Existing prediction file is incompatible with this run ({len(incompatible)} row(s)): {path}. "
+            "Preserve/archive it, then start this system with a clean prediction path."
+        )
+
+
 def run_requests(
     jobs: Iterable[tuple[RenderedRequest, str]],
     *,

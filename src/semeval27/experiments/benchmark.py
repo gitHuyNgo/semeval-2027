@@ -6,7 +6,12 @@ from typing import Any
 
 from semeval27.data.dataset import DatasetLayout, safe_model_sample
 from semeval27.data.fewshot import DEFAULT_NAME_FEWSHOT, load_fewshot
-from semeval27.experiments.common import run_requests, successful_ids, write_run_metadata
+from semeval27.experiments.common import (
+    run_requests,
+    successful_ids,
+    validate_resume_compatibility,
+    write_run_metadata,
+)
 from semeval27.models.registry import create_runner
 from semeval27.prompting.renderer import load_frozen_prompt, render_request
 from semeval27.utils.io import REPO_ROOT, load_paths, load_yaml, read_jsonl
@@ -62,6 +67,15 @@ def main() -> None:
     if args.limit is not None:
         dev = dev[: args.limit]
     output = artifact_root / "predictions" / "benchmark" / f"{args.system_id}.jsonl"
+    if not args.force:
+        validate_resume_compatibility(
+            output,
+            model_id=spec["model_id"],
+            model_revision=spec.get("revision"),
+            prompt_hash=frozen_hash,
+            regime=system["regime"],
+            demo_ids=[demo["sample_id"] for demo in demos],
+        )
     completed = successful_ids(output)
     completed_in_scope = sum(row["id"] in completed for row in dev)
     remaining = sum(row["id"] not in completed for row in dev)

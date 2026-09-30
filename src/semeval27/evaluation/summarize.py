@@ -95,16 +95,17 @@ def benchmark_report(artifact_root: Path, dataset_root: Path) -> list[dict[str, 
     fewshot = load_fewshot(artifact_root / "fewshot" / "fixed_9shot_seed42.json")
     fixed_demo_ids = fewshot["selected_ids"]
     rows = []
-    for system_id in [f"B{i:02d}" for i in range(1, 11)]:
+    # Preserve the configured system order so newly added systems (for example
+    # FT01) cannot silently disappear from the benchmark report.
+    for system_id, system in config["systems"].items():
         prediction_path = artifact_root / "predictions" / "benchmark" / f"{system_id}.jsonl"
         score_path = artifact_root / "scores" / "benchmark" / f"{system_id}.json"
         predictions = read_jsonl(prediction_path)
-        expected_demos = fixed_demo_ids if config["systems"][system_id]["regime"] == "fixed_9shot" else []
+        expected_demos = fixed_demo_ids if system["regime"] == "fixed_9shot" else []
         validate_prediction_coverage(predictions, expected, expected_demos)
         score = _read_json(score_path)
         if score.get("status") != "PROVISIONAL":
             raise ValueError(f"Expected a PROVISIONAL report: {score_path}")
-        system = config["systems"][system_id]
         model = config["models"][system["model"]]
         first = predictions[0]
         metadata_files = sorted((artifact_root / "run_metadata" / "benchmark").glob(f"{system_id}_*.json"))
@@ -117,30 +118,40 @@ def benchmark_report(artifact_root: Path, dataset_root: Path) -> list[dict[str, 
                 "regime": system["regime"],
                 "provisional_bertscore_f1": score["macro_f1"],
                 "n_samples": len(predictions),
-                "n_errors": 0,
+                "n_errors": int(score.get("number_of_inference_errors", 0)),
                 "prompt_hash": first["semantic_prompt_hash"],
                 "fewshot_manifest_hash": "" if system["regime"] == "zero_shot" else fewshot["manifest_sha256"],
                 "model_revision": first.get("model_revision"),
                 "inference_config_hash": metadata.get("inference_config_hash", "missing-run-metadata"),
             }
         )
+    ranked = sorted(rows, key=lambda row: (-float(row["provisional_bertscore_f1"]), row["system_id"]))
+    for rank, row in enumerate(ranked, start=1):
+        row["provisional_rank"] = rank
     fields = list(rows[0])
-    _write_csv(artifact_root / "reports" / "benchmark_provisional.csv", rows, fields)
+    _write_csv(artifact_root / "reports" / "benchmark_provisional.csv", ranked, fields)
     lines = [
         "# Full dev benchmark — PROVISIONAL",
         "",
         f"> **{WARNING}**",
         "> The current local dataset release does not contain the organizer evaluation script.",
         "",
-        "| System | Model | Regime | Provisional BERTScore F1 | N | Errors |",
-        "|---|---|---|---:|---:|---:|",
+        "| Rank | System | Model | Regime | Provisional BERTScore F1 | N | Errors |",
+        "|---:|---|---|---|---:|---:|---:|",
     ]
     lines.extend(
-        f"| {row['system_id']} | {row['model']} | {row['regime']} | {float(row['provisional_bertscore_f1']):.6f} | {row['n_samples']} | {row['n_errors']} |"
-        for row in rows
+        f"| {row['provisional_rank']} | {row['system_id']} | {row['model']} | {row['regime']} | {float(row['provisional_bertscore_f1']):.6f} | {row['n_samples']} | {row['n_errors']} |"
+        for row in ranked
     )
+    if "FT01" in config["systems"]:
+        lines.extend(
+            [
+                "",
+                "> FT01 uses the pinned third-party `qwen3-vl-4b-mmcultureqa-split512` adapter. Its published 9,000/1,000 train/validation manifest was verified to have zero ID overlap with the 1,000-example benchmark dev split.",
+            ]
+        )
     (artifact_root / "reports" / "benchmark_provisional.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
-    return rows
+    return ranked
 
 
 def main() -> None:

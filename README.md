@@ -95,8 +95,12 @@ python -m semeval27.evaluation.provisional_bertscore --predictions artifacts/pre
 # Inspect the aggregate and per-example provisional F1 values.
 python -c "import json; r=json.load(open('artifacts/scores/benchmark/B05.json', encoding='utf-8')); print(r['macro_f1']); print(r['per_example'][:3])"
 
-# 14. Validate completeness and make provisional CSV/Markdown tables.
+# 14. Validate completeness and make ranked provisional CSV/Markdown tables
+#     for every configured system (currently B01-B10 plus FT01).
 python -m semeval27.evaluation.summarize benchmark --artifact-root artifacts --paths-config configs/paths.example.yaml
+
+# View the Markdown table.
+cat artifacts/reports/benchmark_provisional.md
 ```
 
 Gemini uses the provider-specific `gemini.max_output_tokens` setting because
@@ -105,9 +109,9 @@ saved prediction rows include finish reason and token-usage metadata so empty
 visible responses can be audited without rerunning inference.
 
 The optional `FT01` system evaluates the pinned
-`anhbilong/qwen3-vl-4b-mmcultureqa-lora` PEFT adapter zero-shot. It loads the
-pinned Qwen3-VL-4B base model, applies the adapter with PEFT, and uses the
-adapter repository's fixed 65,536-pixel processor configuration:
+`anhbilong/qwen3-vl-4b-mmcultureqa-split512` PEFT adapter zero-shot. It loads
+the pinned Qwen3-VL-4B base model, applies the adapter with PEFT, and uses the
+adapter repository's 65,536-to-262,144-pixel processor configuration:
 
 ```powershell
 python -m semeval27.experiments.benchmark --system-id FT01 --limit 5 --paths-config configs/paths.example.yaml
@@ -115,10 +119,12 @@ python -m semeval27.experiments.benchmark --system-id FT01 --paths-config config
 python -m semeval27.evaluation.provisional_bertscore --predictions artifacts/predictions/benchmark/FT01.jsonl --output artifacts/scores/benchmark/FT01.json
 ```
 
-The adapter model card does not document its dataset construction or prompt,
-and its uploaded run configuration names a `dev.csv` validation file. Treat
-FT01 results as validation-set results unless the adapter author independently
-confirms split provenance and absence of benchmark leakage.
+The adapter's published split manifest contains a stratified 9,000/1,000 split
+of the 10,000-example MMCultureQA training set. Its IDs were checked against the
+local release: both subsets are contained in `train_en.jsonl`, are mutually
+exclusive, and have zero overlap with the 1,000-example `dev_en.jsonl`
+benchmark split. Preserve the pinned adapter revision and split manifest with
+the result provenance.
 
 When organizer code becomes available, sync it verbatim, run the optional
 wrapper against the same prediction files, and compare the saved score reports:

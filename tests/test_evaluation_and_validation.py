@@ -7,6 +7,8 @@ import pytest
 from semeval27.evaluation.provisional_bertscore import _prediction_and_reference, provisional_config
 from semeval27.evaluation.sync_official_scorer import sync_files
 from semeval27.experiments.benchmark import validate_prediction_coverage
+from semeval27.experiments.common import validate_resume_compatibility
+from semeval27.utils.io import append_jsonl
 from semeval27.models.gemini_runner import _response_metadata
 from semeval27.utils.io import REPO_ROOT, load_yaml, sha256_file
 
@@ -94,10 +96,35 @@ def test_finetuned_zero_shot_system_pins_adapter_base_and_processor() -> None:
     model = config["models"][system["model"]]
     assert system["regime"] == "zero_shot"
     assert model["provider"] == "hf_peft"
-    assert model["model_id"] == "anhbilong/qwen3-vl-4b-mmcultureqa-lora"
-    assert model["revision"] == "d001587b74e3564b32fa021adf109a4496507e21"
+    assert model["model_id"] == "anhbilong/qwen3-vl-4b-mmcultureqa-split512"
+    assert model["revision"] == "e62fdf28389cdc11f45f295f63e3e4c354e8eabe"
     assert model["base_model_id"] == "Qwen/Qwen3-VL-4B-Instruct"
     assert model["base_revision"] == "ebb281ec70b05090aa6165b016eac8ec08e71b17"
     assert model["processor_id"] == model["model_id"]
     assert model["processor_revision"] == model["revision"]
     assert model["dtype"] == "float16"
+
+
+def test_resume_rejects_predictions_from_a_different_adapter(tmp_path: Path) -> None:
+    path = tmp_path / "FT01.jsonl"
+    append_jsonl(
+        path,
+        {
+            "sample_id": "x",
+            "model_id": "anhbilong/wrong-adapter",
+            "model_revision": "old-revision",
+            "semantic_prompt_hash": "prompt-hash",
+            "regime": "zero_shot",
+            "demo_ids": [],
+            "inference_status": "success",
+        },
+    )
+    with pytest.raises(ValueError, match="incompatible"):
+        validate_resume_compatibility(
+            path,
+            model_id="anhbilong/qwen3-vl-4b-mmcultureqa-split512",
+            model_revision="e62fdf28389cdc11f45f295f63e3e4c354e8eabe",
+            prompt_hash="prompt-hash",
+            regime="zero_shot",
+            demo_ids=[],
+        )
