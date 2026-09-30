@@ -19,6 +19,7 @@ dependencies = [
 [project.optional-dependencies]
 local = [
   "accelerate>=1.2,<2",
+  "peft==0.18.1",
   "Pillow>=10,<13",
   "qwen-vl-utils>=0.0.14",
 ]

@@ -26,10 +26,19 @@ def create_runner(
     spec = model_spec(alias, models_path)
     inference = load_yaml(inference_path)
     common = (spec["model_id"], spec.get("revision"), inference["generation"])
-    if spec["provider"] == "hf":
+    if spec["provider"] in {"hf", "hf_peft"}:
         from semeval27.models.hf_vlm_runner import HFVLMRunner
 
-        return HFVLMRunner(*common, layout, debug_quantized=debug_quantized)
+        return HFVLMRunner(
+            *common,
+            layout,
+            dtype_name=spec.get("dtype", "bfloat16"),
+            base_model_id=spec.get("base_model_id"),
+            base_revision=spec.get("base_revision"),
+            processor_id=spec.get("processor_id"),
+            processor_revision=spec.get("processor_revision"),
+            debug_quantized=debug_quantized,
+        )
     if spec["provider"] == "openai":
         from semeval27.models.openai_runner import OpenAIRunner
 

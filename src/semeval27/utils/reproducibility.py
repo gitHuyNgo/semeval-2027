@@ -46,7 +46,7 @@ def software_metadata(repo_root: Path) -> dict[str, Any]:
         "platform": platform.platform(),
         "packages": {
             name: package_version(name)
-            for name in ["bert-score", "transformers", "torch", "openai", "google-genai"]
+            for name in ["bert-score", "transformers", "torch", "peft", "openai", "google-genai"]
         },
         "repository_commit": git_commit(repo_root),
     }

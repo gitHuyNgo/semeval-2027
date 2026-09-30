@@ -104,6 +104,22 @@ Gemini's limit includes both internal thinking and visible answer tokens. Its
 saved prediction rows include finish reason and token-usage metadata so empty
 visible responses can be audited without rerunning inference.
 
+The optional `FT01` system evaluates the pinned
+`anhbilong/qwen3-vl-4b-mmcultureqa-lora` PEFT adapter zero-shot. It loads the
+pinned Qwen3-VL-4B base model, applies the adapter with PEFT, and uses the
+adapter repository's fixed 65,536-pixel processor configuration:
+
+```powershell
+python -m semeval27.experiments.benchmark --system-id FT01 --limit 5 --paths-config configs/paths.example.yaml
+python -m semeval27.experiments.benchmark --system-id FT01 --paths-config configs/paths.example.yaml
+python -m semeval27.evaluation.provisional_bertscore --predictions artifacts/predictions/benchmark/FT01.jsonl --output artifacts/scores/benchmark/FT01.json
+```
+
+The adapter model card does not document its dataset construction or prompt,
+and its uploaded run configuration names a `dev.csv` validation file. Treat
+FT01 results as validation-set results unless the adapter author independently
+confirms split provenance and absence of benchmark leakage.
+
 When organizer code becomes available, sync it verbatim, run the optional
 wrapper against the same prediction files, and compare the saved score reports:
 

@@ -8,7 +8,7 @@ from semeval27.evaluation.provisional_bertscore import _prediction_and_reference
 from semeval27.evaluation.sync_official_scorer import sync_files
 from semeval27.experiments.benchmark import validate_prediction_coverage
 from semeval27.models.gemini_runner import _response_metadata
-from semeval27.utils.io import sha256_file
+from semeval27.utils.io import REPO_ROOT, load_yaml, sha256_file
 
 
 def test_official_scorer_copy_hashes_match_originals(dataset_root: Path, tmp_path: Path) -> None:
@@ -86,3 +86,18 @@ def test_gemini_response_metadata_preserves_finish_reason_and_token_usage() -> N
     assert metadata["finish_reason"] == "MAX_TOKENS"
     assert metadata["finish_message"] == "token limit"
     assert metadata["usage"]["thoughts_token_count"] == 1024
+
+
+def test_finetuned_zero_shot_system_pins_adapter_base_and_processor() -> None:
+    config = load_yaml(REPO_ROOT / "configs" / "models.yaml")
+    system = config["systems"]["FT01"]
+    model = config["models"][system["model"]]
+    assert system["regime"] == "zero_shot"
+    assert model["provider"] == "hf_peft"
+    assert model["model_id"] == "anhbilong/qwen3-vl-4b-mmcultureqa-lora"
+    assert model["revision"] == "d001587b74e3564b32fa021adf109a4496507e21"
+    assert model["base_model_id"] == "Qwen/Qwen3-VL-4B-Instruct"
+    assert model["base_revision"] == "ebb281ec70b05090aa6165b016eac8ec08e71b17"
+    assert model["processor_id"] == model["model_id"]
+    assert model["processor_revision"] == model["revision"]
+    assert model["dtype"] == "float16"

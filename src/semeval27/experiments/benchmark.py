@@ -34,8 +34,8 @@ def validate_prediction_coverage(
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Run one of the frozen B01–B10 benchmark systems")
-    parser.add_argument("--system-id", required=True, choices=[f"B{i:02d}" for i in range(1, 11)])
+    parser = argparse.ArgumentParser(description="Run a configured frozen-prompt benchmark system")
+    parser.add_argument("--system-id", required=True)
     parser.add_argument("--paths-config", default="configs/paths.example.yaml")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--force", action="store_true")
@@ -45,6 +45,10 @@ def main() -> None:
     dataset_root, artifact_root = load_paths(args.paths_config)
     layout = DatasetLayout(dataset_root)
     model_config = load_yaml(REPO_ROOT / "configs" / "models.yaml")
+    if args.system_id not in model_config["systems"]:
+        raise SystemExit(
+            f"Unknown system ID {args.system_id!r}; choose one of {sorted(model_config['systems'])}"
+        )
     system = model_config["systems"][args.system_id]
     spec = model_config["models"][system["model"]]
     prompt_id, template, frozen_hash = load_frozen_prompt(REPO_ROOT / "configs" / "prompts" / "frozen_prompt.yaml")

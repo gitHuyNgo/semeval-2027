@@ -17,6 +17,11 @@ class HFVLMRunner(ModelRunner):
         generation: dict[str, Any],
         layout: DatasetLayout,
         *,
+        dtype_name: str = "bfloat16",
+        base_model_id: str | None = None,
+        base_revision: str | None = None,
+        processor_id: str | None = None,
+        processor_revision: str | None = None,
         debug_quantized: bool = False,
     ) -> None:
         super().__init__(model_id, revision, generation)
@@ -27,21 +32,58 @@ class HFVLMRunner(ModelRunner):
             raise RuntimeError("Install the local extra: python -m pip install -e '.[local]'") from exc
         if not torch.cuda.is_available():
             raise RuntimeError("Local scientific benchmark runs require a CUDA GPU")
-        if not debug_quantized and not torch.cuda.is_bf16_supported():
-            raise RuntimeError("Native BF16 is required; use --debug-quantized only for explicitly labeled debugging")
         self.layout = layout
         hf_token = os.getenv("HF_TOKEN") or None
-        self.processor = AutoProcessor.from_pretrained(model_id, revision=revision, token=hf_token)
-        kwargs: dict[str, Any] = {"revision": revision, "device_map": "auto", "token": hf_token}
+        processor_source = processor_id or model_id
+        processor_source_revision = processor_revision or revision
+        self.processor = AutoProcessor.from_pretrained(
+            processor_source,
+            revision=processor_source_revision,
+            token=hf_token,
+        )
+        model_source = base_model_id or model_id
+        model_source_revision = base_revision if base_model_id else revision
+        kwargs: dict[str, Any] = {
+            "revision": model_source_revision,
+            "device_map": "auto",
+            "token": hf_token,
+        }
         if debug_quantized:
             kwargs["quantization_config"] = BitsAndBytesConfig(load_in_4bit=True)
             self.precision_status = "DEBUG_4BIT_NOT_SCIENTIFIC"
         else:
-            kwargs["torch_dtype"] = torch.bfloat16
-            self.precision_status = "NATIVE_BF16"
-        self.model = AutoModelForImageTextToText.from_pretrained(model_id, **kwargs)
-        commit = getattr(getattr(self.model, "config", None), "_commit_hash", None)
-        self.resolved_revision = commit or revision
+            if dtype_name not in {"bfloat16", "float16"}:
+                raise ValueError(f"Unsupported scientific inference dtype: {dtype_name}")
+            if dtype_name == "bfloat16" and not torch.cuda.is_bf16_supported():
+                raise RuntimeError(
+                    "Native BF16 is required; use --debug-quantized only for explicitly labeled debugging"
+                )
+            kwargs["torch_dtype"] = getattr(torch, dtype_name)
+            self.precision_status = f"NATIVE_{dtype_name.upper()}"
+        self.model = AutoModelForImageTextToText.from_pretrained(model_source, **kwargs)
+        base_commit = getattr(getattr(self.model, "config", None), "_commit_hash", None)
+        self.base_model_id = model_source
+        self.base_model_revision = base_commit or model_source_revision
+        self.adapter_id: str | None = None
+        self.adapter_revision: str | None = None
+        if base_model_id:
+            try:
+                from peft import PeftModel
+            except ImportError as exc:
+                raise RuntimeError("Install PEFT support: python -m pip install -e '.[local]'") from exc
+            self.model = PeftModel.from_pretrained(
+                self.model,
+                model_id,
+                revision=revision,
+                token=hf_token,
+                is_trainable=False,
+            )
+            self.adapter_id = model_id
+            self.adapter_revision = revision
+            self.resolved_revision = revision
+        else:
+            self.resolved_revision = self.base_model_revision
+        self.model.eval()
 
     def _messages(self, request: RenderedRequest) -> list[dict[str, Any]]:
         messages: list[dict[str, Any]] = []
@@ -66,6 +108,11 @@ class HFVLMRunner(ModelRunner):
             "max_new_tokens": int(self.generation["max_output_tokens"]),
             "precision_status": self.precision_status,
             "native_chat_template": True,
+            "processor_id": getattr(self.processor, "name_or_path", processor_source),
+            "base_model_id": self.base_model_id,
+            "base_model_revision": self.base_model_revision,
+            "adapter_id": self.adapter_id,
+            "adapter_revision": self.adapter_revision,
         }
         try:
             messages = self._messages(request)
