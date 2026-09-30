@@ -1,0 +1,4 @@
+model=anhbilong/qwen3-vl-4b-mmcultureqa-lora split_size=1000 regime=zero_shot already_completed=5 requests_required=995
+Loading checkpoint shards:   0%|          | 0/2 [00:00<?, ?it/s]Loading checkpoint shards:  50%|█████     | 1/2 [00:00<00:00,  1.06it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.16it/s]Loading checkpoint shards: 100%|██████████| 2/2 [00:01<00:00,  1.15it/s]
+The following generation flags are not valid and may be ignored: ['temperature', 'top_p', 'top_k']. Set `TRANSFORMERS_VERBOSITY=info` for more details.
+FT01: wrote 995 successful predictions; 0 errors (not marked complete)
