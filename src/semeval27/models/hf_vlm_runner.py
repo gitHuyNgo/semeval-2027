@@ -36,6 +36,8 @@ class HFVLMRunner(ModelRunner):
         hf_token = os.getenv("HF_TOKEN") or None
         processor_source = processor_id or model_id
         processor_source_revision = processor_revision or revision
+        self.processor_id = processor_source
+        self.processor_revision = processor_source_revision
         self.processor = AutoProcessor.from_pretrained(
             processor_source,
             revision=processor_source_revision,
@@ -58,7 +60,7 @@ class HFVLMRunner(ModelRunner):
                 raise RuntimeError(
                     "Native BF16 is required; use --debug-quantized only for explicitly labeled debugging"
                 )
-            kwargs["torch_dtype"] = getattr(torch, dtype_name)
+            kwargs["dtype"] = getattr(torch, dtype_name)
             self.precision_status = f"NATIVE_{dtype_name.upper()}"
         self.model = AutoModelForImageTextToText.from_pretrained(model_source, **kwargs)
         base_commit = getattr(getattr(self.model, "config", None), "_commit_hash", None)
@@ -108,7 +110,8 @@ class HFVLMRunner(ModelRunner):
             "max_new_tokens": int(self.generation["max_output_tokens"]),
             "precision_status": self.precision_status,
             "native_chat_template": True,
-            "processor_id": getattr(self.processor, "name_or_path", processor_source),
+            "processor_id": getattr(self.processor, "name_or_path", self.processor_id),
+            "processor_revision": self.processor_revision,
             "base_model_id": self.base_model_id,
             "base_model_revision": self.base_model_revision,
             "adapter_id": self.adapter_id,
